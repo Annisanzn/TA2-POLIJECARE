@@ -1,0 +1,22 @@
+# ======================
+# Frontend (React)
+# ======================
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+
+# ======================
+# Backend (Laravel)
+# ======================
+backend/vendor/
+backend/.env
+backend/storage/logs/
+backend/storage/framework/
+
+# ======================
+# Editor & OS
+# ======================
+.vscode/
+.idea/
+.DS_Store
