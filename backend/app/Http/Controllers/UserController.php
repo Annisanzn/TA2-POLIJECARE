@@ -9,14 +9,46 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        $perPage = (int) $request->query('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
         $users = User::query()
             ->select('id', 'name', 'email', 'role', 'created_at', 'updated_at')
             ->orderBy('name')
-            ->get();
+            ->paginate($perPage)
+            ->appends($request->only(['page', 'per_page']));
 
-        return response()->json($users);
+        $data = $users->getCollection()
+            ->map(function (User $user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'created_at' => optional($user->created_at)->toISOString(),
+                    'updated_at' => optional($user->updated_at)->toISOString(),
+                ];
+            })
+            ->values()
+            ->all();
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'last_page' => $users->lastPage(),
+            ],
+            'links' => [
+                'first' => $users->url(1),
+                'prev' => $users->previousPageUrl(),
+                'next' => $users->nextPageUrl(),
+                'last' => $users->url($users->lastPage()),
+            ],
+        ]);
     }
 
     public function store(Request $request): JsonResponse

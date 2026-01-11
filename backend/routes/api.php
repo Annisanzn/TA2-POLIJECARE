@@ -1,15 +1,16 @@
 <?php
 
 use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use Illuminate\Http\Request;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\ComplaintController;
-use App\Http\Controllers\Api\MaterialController;
-use App\Http\Controllers\Api\ViolenceCategoryController;
 use App\Http\Controllers\Api\CounselingScheduleController;
 use App\Http\Controllers\Api\CounselorScheduleController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\ViolenceCategoryController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Models\Announcement;
+use Illuminate\Http\Request;
 
 
 Route::get('/hello', function () {
@@ -37,26 +38,20 @@ Route::get('/public/announcements', function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum', 'operator'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
+});
 
-
-    Route::middleware('operator')->group(function () {
-        Route::get('/dashboard/operator', [DashboardController::class, 'operator']);
-    });
-    Route::middleware(['auth:sanctum', 'role.operator'])->group(function () {
-    Route::get('/users', [UserController::class, 'index']);
-    });
+Route::middleware(['auth:sanctum', 'role:operator,konselor'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/complaints', [ComplaintController::class, 'index']);
+    Route::get('/materials', [MaterialController::class, 'index']);
 });
-
-Route::middleware('auth:sanctum')->get('/materials', [MaterialController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource(
@@ -65,13 +60,44 @@ Route::middleware('auth:sanctum')->group(function () {
     );
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'role:operator,konselor'])->group(function () {
     Route::get('/counseling-schedules', [CounselingScheduleController::class, 'index']);
+});
+
+Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
     Route::patch('/counseling-schedules/{id}/status', [CounselingScheduleController::class, 'updateStatus']);
+});
+
+Route::middleware(['auth:sanctum', 'role:konselor'])->group(function () {
+    Route::post('/counseling-schedules/{id}/confirm', [CounselingScheduleController::class, 'confirm']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/counselor-schedules', [CounselorScheduleController::class, 'index']);
     Route::post('/counselor-schedules', [CounselorScheduleController::class, 'store']);
     Route::put('/counselor-schedules/{id}', [CounselorScheduleController::class, 'update']);
+});
+
+Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
+    Route::post('/materials', [MaterialController::class, 'store']);
+    Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'role:pengguna'])->group(function () {
+    Route::post('/complaints', [ComplaintController::class, 'store']);
+    Route::get('/my-complaints', [ComplaintController::class, 'myComplaints']);
+});
+
+Route::middleware(['auth:sanctum', 'role:operator,konselor'])->group(function () {
+    Route::get('/complaints', [ComplaintController::class, 'index']);
+    Route::get('/complaints/{complaint}', [ComplaintController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
+    Route::patch('/complaints/{complaint}/assign-counselor', [ComplaintController::class, 'assignCounselor']);
+    Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'role:operator,konselor'])->group(function () {
+    Route::patch('/complaints/{complaint}/status', [ComplaintController::class, 'updateStatus']);
 });

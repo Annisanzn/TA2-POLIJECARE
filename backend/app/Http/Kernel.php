@@ -64,11 +64,10 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'operator' => \App\Http\Middleware\RoleOperator::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 
     protected $routeMiddleware = [
-    // middleware lain
-    'role.operator' => \App\Http\Middleware\RoleOperator::class,
-];
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ];
 }
