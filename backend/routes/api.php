@@ -25,7 +25,15 @@ Route::get('/test-db', function () {
     ];
 });
 
-Route::get('/announcements', [AnnouncementController::class, 'index']);
+Route::apiResource('announcements', AnnouncementController::class);
+Route::get('/public/announcements', function () {
+    return Announcement::whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderBy('published_at', 'desc')
+        ->limit(3)
+        ->get();
+});
+
 
 Route::post('/login', [AuthController::class, 'login']);
 

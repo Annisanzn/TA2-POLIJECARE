@@ -7,15 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Announcement extends Model
 {
-    use HasFactory;
+    protected $table = 'announcements';
 
     protected $fillable = [
         'title',
         'content',
-        'published_at',
+        'image',
+        'published_at'
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
     ];
+
+    // helper status (opsional, tapi keren buat TA)
+    public function getStatusAttribute()
+    {
+        if (!$this->published_at) {
+            return 'draft';
+        }
+
+        return $this->published_at->isPast()
+            ? 'tayang'
+            : 'draft';
+    }
 }
