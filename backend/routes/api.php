@@ -49,8 +49,16 @@ Route::middleware(['auth:sanctum', 'role:operator,konselor'])->group(function ()
     Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+// Materials API - Accessible by Operator & Konselor
+Route::middleware(['auth:sanctum', 'role:operator,konselor'])->group(function () {
     Route::get('/materials', [MaterialController::class, 'index']);
+    Route::post('/materials', [MaterialController::class, 'store']); // Konselor can upload
+});
+
+// Materials CRUD - Only Operator can modify
+Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
+    Route::put('/materials/{id}', [MaterialController::class, 'update']);
+    Route::delete('/materials/{id}', [MaterialController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -79,7 +87,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
-    Route::post('/materials', [MaterialController::class, 'store']);
+    Route::get('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy']);
 });
 

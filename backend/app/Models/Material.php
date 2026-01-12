@@ -15,9 +15,25 @@ class Material extends Model
         'uploaded_by'
     ];
 
-    public function uploader()
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    /**
+     * Get the user who uploaded the material
+     */
+    public function user()
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    /**
+     * Alias for user relation for backward compatibility
+     */
+    public function uploader()
+    {
+        return $this->user();
     }
 }
 

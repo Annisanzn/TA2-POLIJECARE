@@ -48,4 +48,9 @@ protected $fillable = [
             'password' => 'hashed',
         ];
     }
+
+    public function materials()
+    {
+        return $this->hasMany(Material::class, 'uploaded_by');
+    }
 }
