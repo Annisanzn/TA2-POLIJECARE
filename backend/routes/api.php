@@ -38,6 +38,11 @@ Route::get('/public/announcements', function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 
+// Sanctum CSRF cookie route for frontend authentication
+Route::get('/sanctum/csrf-cookie', function (Request $request) {
+    return response()->json(['message' => 'CSRF cookie set']);
+})->middleware('web');
+
 Route::middleware(['auth:sanctum', 'role:operator'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
